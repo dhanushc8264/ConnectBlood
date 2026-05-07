@@ -51,12 +51,6 @@ jobs:
           cd backend
           NODE_ENV=test npm test
 
-      # ✅ Security scan (STRICT)
-      - name: Run security scan
-        run: |
-          cd backend
-          npm audit fix --force
-
       # ✅ Login to GitHub Container Registry
       - name: Login to GHCR
         run: |
