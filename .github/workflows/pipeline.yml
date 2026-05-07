@@ -1,6 +1,7 @@
 name: JavaScript Test Validation Pipeline
 
-on:on:
+on:
+  push:
     branches: ["*"]
   pull_request:
     branches: ["*"]
@@ -8,7 +9,7 @@ on:on:
 
 permissions:
   contents: read
-  packages: write   #  required for GHCR
+  packages: write   # required for GHCR
 
 jobs:
   test:
@@ -27,7 +28,7 @@ jobs:
           ls backend
           ls frontend
 
-      #  Install backend dependencies (with retry)
+      #  Install backend dependencies
       - name: Install backend dependencies
         run: |
           cd backend
@@ -35,53 +36,53 @@ jobs:
             npm ci && break || sleep 10
           done
 
-      #  Ensure Jest exists
+      #  Setup Jest
       - name: Setup Jest
         run: |
           cd backend
           npm install --save-dev jest || true
           npm pkg set scripts.test="jest"
 
-      #  Run tests
+      #  Run backend tests
       - name: Run backend tests
         run: |
           cd backend
           NODE_ENV=test npm test
 
-      #  Login to GitHub Container Registry (GHCR)
+      #  Login to GitHub Container Registry
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      #  Build Docker image
-      - name: Build Docker image
+      #  Build backend Docker image
+      - name: Build backend Docker image
         run: |
           cd backend
           docker build -t ghcr.io/${{ github.repository_owner }}/connectblood-backend:latest .
 
-      #  Push Docker image
-      - name: Push Docker image
+      #  Push backend Docker image
+      - name: Push backend Docker image
         run: |
           docker push ghcr.io/${{ github.repository_owner }}/connectblood-backend:latest
 
-      # Install frontend deps
+      #  Install frontend dependencies
       - name: Install frontend dependencies
         run: |
           cd frontend
           npm ci || npm install
 
-# Build frontend
+      #  Build frontend
       - name: Build frontend
         run: |
           cd frontend
           npm run build
 
-# Build frontend Docker image
+      #  Build frontend Docker image
       - name: Build frontend Docker image
         run: |
           cd frontend
           docker build -t ghcr.io/${{ github.repository_owner }}/connectblood-frontend:latest .
 
-# Push frontend image
+      #  Push frontend Docker image
       - name: Push frontend Docker image
         run: |
           docker push ghcr.io/${{ github.repository_owner }}/connectblood-frontend:latest
