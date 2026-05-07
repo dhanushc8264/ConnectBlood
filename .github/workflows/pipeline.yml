@@ -35,6 +35,11 @@ jobs:
           for i in 1 2 3; do
             npm ci && break || sleep 10
           done
+      
+      - name: Run ESLint
+        run: |
+          cd backend
+          npx eslint .
 
       #  Setup Jest
       - name: Setup Jest
@@ -48,6 +53,11 @@ jobs:
         run: |
           cd backend
           NODE_ENV=test npm test
+      
+      - name: Run security scan
+        run: |
+          cd backend
+          npm audit --audit-level=high
 
       #  Login to GitHub Container Registry
       - name: Login to GHCR
