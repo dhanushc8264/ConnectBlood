@@ -38,11 +38,7 @@ jobs:
             npm ci && break || sleep 10
           done
 
-      # ✅ Install ESLint (pipeline install)
-      - name: Install ESLint
-        run: |
-          cd backend
-          npm install eslint --save-dev
+   
 
       # ✅ Run ESLint
       - name: Run ESLint
