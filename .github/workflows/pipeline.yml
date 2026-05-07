@@ -2,14 +2,16 @@ name: JavaScript Test Validation Pipeline
 
 on:
   push:
-    branches: ["*"]
+    branches:
+      - "*"
   pull_request:
-    branches: ["*"]
+    branches:
+      - "*"
   workflow_dispatch:
 
 permissions:
   contents: read
-  packages: write   # required for GHCR
+  packages: write
 
 jobs:
   test:
@@ -17,82 +19,91 @@ jobs:
 
     steps:
 
-      #  Checkout repo
+      # ✅ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      #  Debug structure (optional)
+      # ✅ Debug structure
       - name: Show repo structure
         run: |
           ls
           ls backend
           ls frontend
 
-      #  Install backend dependencies
+      # ✅ Install backend dependencies
       - name: Install backend dependencies
         run: |
           cd backend
           for i in 1 2 3; do
             npm ci && break || sleep 10
           done
-      
+
+      # ✅ Install ESLint (pipeline install)
+      - name: Install ESLint
+        run: |
+          cd backend
+          npm install eslint --save-dev
+
+      # ✅ Run ESLint
       - name: Run ESLint
         run: |
           cd backend
           npx eslint .
 
-      #  Setup Jest
+      # ✅ Setup Jest
       - name: Setup Jest
         run: |
           cd backend
           npm install --save-dev jest || true
           npm pkg set scripts.test="jest"
 
-      #  Run backend tests
+      # ✅ Run backend tests
       - name: Run backend tests
         run: |
           cd backend
           NODE_ENV=test npm test
-      
+
+      # ✅ Security scan (STRICT)
       - name: Run security scan
         run: |
           cd backend
           npm audit --audit-level=high
 
-      #  Login to GitHub Container Registry
+      # ✅ Login to GitHub Container Registry
       - name: Login to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      #  Build backend Docker image
+      # ✅ Build backend Docker image
       - name: Build backend Docker image
         run: |
           cd backend
           docker build -t ghcr.io/${{ github.repository_owner }}/connectblood-backend:latest .
 
-      #  Push backend Docker image
+      # ✅ Push backend Docker image
       - name: Push backend Docker image
         run: |
           docker push ghcr.io/${{ github.repository_owner }}/connectblood-backend:latest
 
-      #  Install frontend dependencies
+      # ✅ Install frontend dependencies
       - name: Install frontend dependencies
         run: |
           cd frontend
           npm ci || npm install
 
-      #  Build frontend
+      # ✅ Build frontend
       - name: Build frontend
         run: |
           cd frontend
           npm run build
 
-      #  Build frontend Docker image
+      # ✅ Build frontend Docker image
       - name: Build frontend Docker image
         run: |
           cd frontend
           docker build -t ghcr.io/${{ github.repository_owner }}/connectblood-frontend:latest .
 
-      #  Push frontend Docker image
+      # ✅ Push frontend Docker image
       - name: Push frontend Docker image
         run: |
           docker push ghcr.io/${{ github.repository_owner }}/connectblood-frontend:latest
