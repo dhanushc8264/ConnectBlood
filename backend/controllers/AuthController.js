@@ -3,9 +3,8 @@ import bcrypt from 'bcrypt'
 import User from '../models/userModel.js'
 import axios from 'axios'
 
-
 export const geocode = async(req,res)=>{
-     
+     // Geocoding functionality remains the same
   const {address} = req.query;
   if (!address) return res.status(400).json({ message: 'Address is required' });
 
@@ -34,10 +33,10 @@ export const geocode = async(req,res)=>{
 
 export const registerController = async(req,res) => {
   try {
-      const {name, email, phone, password, blood_group, location} = req.body
+      const {name, email, phoneNumber, password, blood_group, location} = req.body
 
       // Check if all required fields are present
-      if(!name || !email || !phone || !password || !blood_group || !location) {
+      if(!name || !email || !phoneNumber || !password || !blood_group || !location) {
           return res.send({error: 'All fields are necessary'})
       }
       
@@ -45,6 +44,14 @@ export const registerController = async(req,res) => {
       if(!location.address || !location.coordinates || 
          !location.coordinates.latitude || !location.coordinates.longitude) {
           return res.send({error: 'Location must include address and coordinates (latitude/longitude)'})
+      }
+
+      // Validate phoneNumber
+      if (!phoneNumber || phoneNumber.length === 0) {
+        return res.status(400).send({
+          success: false,
+          message: 'Phone number is required',
+        });
       }
 
       const existingUser = await User.findOne({email})
@@ -62,7 +69,7 @@ export const registerController = async(req,res) => {
       const newUser = new User({
           name, 
           email, 
-          phone, 
+          phoneNumber, 
           password: hashedPassword, 
           blood_group, 
           location: {
@@ -134,6 +141,12 @@ export const loginController = async (req, res) => {
     return res.status(201).send({
       success: true,
       message: "login success",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+      }
     })
   } catch (err) {
     console.log(err)
@@ -191,7 +204,13 @@ export const updateLocation = async(req,res)=>{
     res.status(200).json({
       success: true,
       message: "Location updated successfully",
-      location: updatedUser.location
+      location: updatedUser.location,
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phoneNumber: updatedUser.phoneNumber,
+      }
     });
   }
   catch(err) {
