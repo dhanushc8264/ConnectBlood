@@ -55,7 +55,7 @@ jobs:
       - name: Run security scan
         run: |
           cd backend
-          npm audit fix
+          npm audit fix --force
 
       # ✅ Login to GitHub Container Registry
       - name: Login to GHCR
