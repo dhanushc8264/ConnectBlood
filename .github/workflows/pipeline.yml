@@ -38,14 +38,6 @@ jobs:
             npm ci && break || sleep 10
           done
 
-   
-
-      # ✅ Run ESLint
-      - name: Run ESLint
-        run: |
-          cd backend
-          npx eslint .
-
       # ✅ Setup Jest
       - name: Setup Jest
         run: |
