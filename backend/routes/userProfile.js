@@ -1,23 +1,27 @@
-    import express from "express";
-    import { changePassword, getUserProfile, updateUserProfile } from "../controllers/userProfile.js";
-    //import { uploadProfilePicture } from "../controllers/userProfile.js";
+const express = require('express');
 
-    import protectedRoute from "../middlewares/AuthMiddleware.js";
-    import upload from "../middlewares/uploadMiddleware.js";
+const {
+  changePassword,
+  getUserProfile,
+  updateUserProfile
+} = require('../controllers/userProfile');
 
+const protectedRoute = require('../middlewares/AuthMiddleware');
+const upload = require('../middlewares/uploadMiddleware');
 
-    const router = express.Router();
+const router = express.Router();
 
-    // Get user profile
-    router.get("/profile", protectedRoute, getUserProfile);
+//  Get user profile
+router.get('/profile', protectedRoute, getUserProfile);
 
-    // Update user profile
-    router.put("/update", protectedRoute, updateUserProfile);
+//  Update user profile
+router.put('/update', protectedRoute, updateUserProfile);
 
-    router.put("/change-password",protectedRoute , changePassword);
+//  Change password
+router.put('/change-password', protectedRoute, changePassword);
 
-    //upload profilepicture
-   // router.post("/upload", protectedRoute, upload.single("profilePic"), uploadProfilePicture);
+//  Upload profile picture (if needed later)
+// router.post('/upload', protectedRoute, upload.single('profilePic'), uploadProfilePicture);
 
-
-    export default router;
+//  EXPORT
+module.exports = router;

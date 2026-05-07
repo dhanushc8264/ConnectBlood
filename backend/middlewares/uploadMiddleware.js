@@ -1,24 +1,25 @@
-// In uploadMiddleware.js
-import multer from 'multer'
+const multer = require('multer');
 
-const storage = multer.memoryStorage()
+// ✅ Use memory storage
+const storage = multer.memoryStorage();
 
-const fileFilter = (req,file,cb)=>{
+// ✅ File filter
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
 
-  const allowedTypes = ["image/jpeg","image/png","image/jpg"]
-
-  if(allowedTypes.includes(file.mimetype)){
-    cb(null , true)
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("only jpeg and png allowed"), false);
   }
-  else{
-    cb(new Error("only jpeg and png allowed",false))
-  }
-}
+};
 
+// ✅ Configure upload
 const upload = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 },
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
   fileFilter
-})
+});
 
-export default upload;
+// ✅ EXPORT
+module.exports = upload;

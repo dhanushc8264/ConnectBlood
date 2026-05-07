@@ -1,10 +1,18 @@
-import express from "express";
-import upload from "../middlewares/uploadMiddleware.js";
-import { handleProfileUpload } from "../controllers/uploadController.js";
-import protectedRoute from "../middlewares/AuthMiddleware.js";
+const express = require('express');
+
+const upload = require('../middlewares/uploadMiddleware');
+const { handleProfileUpload } = require('../controllers/uploadController');
+const protectedRoute = require('../middlewares/AuthMiddleware');
 
 const router = express.Router();
 
-router.post("/upload-profile", protectedRoute,upload.single("avatar"), handleProfileUpload);
+// ✅ Upload profile image
+router.post(
+  '/upload-profile',
+  protectedRoute,
+  upload.single('avatar'),
+  handleProfileUpload
+);
 
-export default router;
+// ✅ EXPORT
+module.exports = router;

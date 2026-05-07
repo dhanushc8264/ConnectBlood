@@ -1,18 +1,23 @@
-import express from "express";
-import { getUserDonations,  updateDonationStatus, sendDonationRequest} from '../controllers/donationController.js'
-import ProtectedRoute from "../middlewares/AuthMiddleware.js";
+const express = require('express');
+
+const {
+  getUserDonations,
+  updateDonationStatus,
+  sendDonationRequest
+} = require('../controllers/donationController');
+
+const ProtectedRoute = require('../middlewares/AuthMiddleware');
 
 const router = express.Router();
 
-// // Register a new donation(not using right now)
-// router.post("/register", ProtectedRoute, registerDonation);
+//  Donation request
+router.post('/request', ProtectedRoute, sendDonationRequest);
 
-router.post('/request' ,ProtectedRoute , sendDonationRequest)
+//  Get donation history
+router.get('/', ProtectedRoute, getUserDonations);
 
-// Get donation history of a user
-router.get("/", ProtectedRoute, getUserDonations);
+// Update donation status
+router.put('/update/:donationId', ProtectedRoute, updateDonationStatus);
 
-// Update donation status (completed, pending, cancelled)
-router.put("/update/:donationId", ProtectedRoute, updateDonationStatus);
-
-export default router;
+//  EXPORT
+module.exports = router;
