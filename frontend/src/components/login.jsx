@@ -51,7 +51,6 @@ const Login = ({setUser}) => {
 
         console.log("Response from /check:", userResponse.data);
 
-
         
         if (userResponse.data.success && userResponse.data.user) {
           // 3. Update the user state in the parent component
@@ -129,9 +128,7 @@ const Login = ({setUser}) => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full bg-red-600 text-white py-2 px-4 rounded-md font-medium ${
-                loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-red-700'
-              }`}
+              className={`w-full bg-green-600 text-white py-2 px-4 rounded-md font-medium ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-green-700'}`}
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
@@ -139,7 +136,7 @@ const Login = ({setUser}) => {
           
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              Don't have an account?{' '}
+              Don't have an account?{' '} 
               <Link to="/register" className="text-red-600 hover:text-red-800 font-medium">
                 Register now
               </Link>
