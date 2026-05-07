@@ -1,10 +1,9 @@
 name: JavaScript Test Validation Pipeline
 
-on:
-  push:
-    branches: [main]
+on:on:
+    branches: ["*"]
   pull_request:
-    branches: [main]
+    branches: ["*"]
   workflow_dispatch:
 
 permissions:
@@ -63,3 +62,26 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ghcr.io/${{ github.repository_owner }}/connectblood-backend:latest
+
+      # Install frontend deps
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci || npm install
+
+# Build frontend
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+
+# Build frontend Docker image
+      - name: Build frontend Docker image
+        run: |
+          cd frontend
+          docker build -t ghcr.io/${{ github.repository_owner }}/connectblood-frontend:latest .
+
+# Push frontend image
+      - name: Push frontend Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/connectblood-frontend:latest
