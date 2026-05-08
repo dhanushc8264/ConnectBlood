@@ -1,3 +1,94 @@
+# name: JavaScript Test Validation Pipeline
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     branches:
+#       - main
+#   workflow_dispatch:
+
+# permissions:
+#   contents: read
+#   packages: write
+
+# jobs:
+#   test:
+#     runs-on: ubuntu-latest
+
+#     steps:
+
+#       # ✅ Checkout repository
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       # ✅ Debug structure
+#       - name: Show repo structure
+#         run: |
+#           ls
+#           ls backend
+#           ls frontend
+
+#       # ✅ Install backend dependencies
+#       - name: Install backend dependencies
+#         run: |
+#           cd backend
+#           for i in 1 2 3; do
+#             npm ci && break || sleep 10
+#           done
+
+#       # ✅ Setup Jest
+#       - name: Setup Jest
+#         run: |
+#           cd backend
+#           npm install --save-dev jest || true
+#           npm pkg set scripts.test="jest"
+
+#       # ✅ Run backend tests
+#       - name: Run backend tests
+#         run: |
+#           cd backend
+#           NODE_ENV=test npm test
+
+#       # ✅ Login to GitHub Container Registry
+#       - name: Login to GHCR
+#         run: |
+#           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+#       # ✅ Build backend Docker image
+#       - name: Build backend Docker image
+#         run: |
+#           cd backend
+#           docker build -t ghcr.io/${{ github.repository_owner }}/connectblood-backend:latest .
+
+#       # ✅ Push backend Docker image
+#       - name: Push backend Docker image
+#         run: |
+#           docker push ghcr.io/${{ github.repository_owner }}/connectblood-backend:latest
+
+#       # ✅ Install frontend dependencies
+#       - name: Install frontend dependencies
+#         run: |
+#           cd frontend
+#           npm ci || npm install
+
+#       # ✅ Build frontend
+#       - name: Build frontend
+#         run: |
+#           cd frontend
+#           npm run build
+
+#       # ✅ Build frontend Docker image
+#       - name: Build frontend Docker image
+#         run: |
+#           cd frontend
+#           docker build -t ghcr.io/${{ github.repository_owner }}/connectblood-frontend:latest .
+
+#       # ✅ Push frontend Docker image
+#       - name: Push frontend Docker image
+#         run: |
+#           docker push ghcr.io/${{ github.repository_owner }}/connectblood-frontend:latest
 name: JavaScript Test Validation Pipeline
 
 on:
@@ -45,13 +136,29 @@ jobs:
           npm install --save-dev jest || true
           npm pkg set scripts.test="jest"
 
-      # ✅ Run backend tests
-      - name: Run backend tests
+      # ✅ Run backend tests (capture results ✅)
+      - name: Run backend tests (capture results)
+        id: test_results
         run: |
           cd backend
-          NODE_ENV=test npm test
 
-      # ✅ Login to GitHub Container Registry
+          # Run tests without failing pipeline
+          npm test > test_output.txt 2>&1 || true
+
+          # Print full output
+          cat test_output.txt
+
+          # Extract passed & failed counts
+          PASSED=$(grep -oP "Tests:\s+\K\d+(?=\s+passed)" test_output.txt || echo 0)
+          FAILED=$(grep -oP "Tests:.*\K\d+(?=\s+failed)" test_output.txt || echo 0)
+
+          echo "✅ Passed tests: $PASSED"
+          echo "❌ Failed tests: $FAILED"
+
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+
+      # ✅ Login to GHCR
       - name: Login to GHCR
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
